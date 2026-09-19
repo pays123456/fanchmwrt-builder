@@ -42,11 +42,7 @@ jobs:
       - name: Add FanchmWrt feeds
         run: |
           cd "$GITHUB_WORKSPACE/source"
-          # 引入 FanchmWrt 官方特色包源（包含 openappfilter 等核心包）
           echo "src-git fanchmwrt https://github.com/fanchmwrt/fanchmwrt-packages;main" >> feeds.conf.default
-          # 如果你的账号下还有自定义修改的包，取消下面这行的注释：
-          # echo "src-git pays https://github.com/pays123456/fanchmwrt-packages.git;main" >> feeds.conf.default
-          
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
@@ -56,7 +52,6 @@ jobs:
       - name: Configure
         run: |
           cd "$GITHUB_WORKSPACE/source"
-          # 复制基础配置
           cp "$GITHUB_WORKSPACE/configs/base.config" .config
           
           # ===================== FanchmWrt 核心特色包【必须保留】 =====================
@@ -68,8 +63,13 @@ jobs:
           
           make defconfig
 
-      - name: Build
-        run: cd source && make -j$(nproc)
+      - name: Clean old build artifacts
+        run: |
+          cd "$GITHUB_WORKSPACE/source"
+          make distclean || true
+
+      - name: Build (Debug mode)
+        run: cd source && make -j1 V=s
 
       - name: Verify artifacts
         run: bash scripts/verify-build.sh source "$TARGET" "$SUBTARGET" "$PROFILE"
