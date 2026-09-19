@@ -10,9 +10,8 @@ on:
       - '.github/workflows/**'
 
 env:
-  SOURCE_REPO: fanchmwrt/fanchmwrt
-  SOURCE_BRANCH: fanchmwrt-25.12.4
-  BACKPORT_REPO: ${{ github.repository_owner }}/fanchmwrt-device-backports
+  SOURCE_REPO: openwrt/openwrt
+  SOURCE_BRANCH: v25.12.5
   TARGET: mediatek
   SUBTARGET: filogic
   PROFILE: glinet_gl-mt3600be
@@ -32,13 +31,6 @@ jobs:
           path: source
           fetch-depth: 1
 
-      - name: Checkout backport repo
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ env.BACKPORT_REPO }}
-          path: backport
-          fetch-depth: 1
-
       - name: Install dependencies
         run: |
           sudo apt-get update
@@ -49,9 +41,6 @@ jobs:
 
       - name: Prepare source
         run: bash scripts/prepare-source.sh source
-
-      - name: Apply backport
-        run: bash scripts/apply-backport.sh source "$TARGET" "$SUBTARGET" "$PROFILE" backport
 
       - name: Configure
         run: bash scripts/configure.sh source "$TARGET" "$SUBTARGET" "$PROFILE" configs/base.config
